@@ -1,28 +1,36 @@
 import React, { useEffect, useState } from "react";
 import logo from "../../assets/logo.png";
-import {BrowserRouter, Link, Switch, Route} from "react-router-dom";
-import Item from "./Item";
-import Minter from "./Minter";
 import homeImage from "../../assets/home-img.png";
+import { BrowserRouter, Link, Switch, Route } from "react-router-dom";
+import Minter from "./Minter";
 import Gallery from "./Gallery";
-import {opend} from "../../../declarations/opend";
+import { opend } from "../../../declarations/opend";
 import CURRENT_USER_ID from "../index";
 
 function Header() {
-  
-  const [userOwnedGallary,setOwnedGallery] = useState();
+  const [userOwnedGallery, setOwnedGallery] = useState();
+  const [listingGallery, setListingGallery] = useState();
 
-  async function getNFTs(){
+  async function getNFTs() {
     const userNFTIds = await opend.getOwnedNFTs(CURRENT_USER_ID);
-    setOwnedGallery(<Gallery title="My NFTs" ids= {userNFTIds}/>)
+    console.log(userNFTIds);
+    setOwnedGallery(
+      <Gallery title="My NFTs" ids={userNFTIds} role="collection" />
+    );
+
+    const listedNFTIds = await opend.getListedNFTs();
+    console.log(listedNFTIds);
+    setListingGallery(
+      <Gallery title="Discover" ids={listedNFTIds} role="discover" />
+    );
   }
 
-  useEffect(()=>{
-    getNFTs()
-  },[])
+  useEffect(() => {
+    getNFTs();
+  }, []);
 
   return (
-    <BrowserRouter forcedRefresh={true}>
+    <BrowserRouter forceRefresh={true}>
       <div className="app-root-1">
         <header className="Paper-root AppBar-root AppBar-positionStatic AppBar-colorPrimary Paper-elevation4">
           <div className="Toolbar-root Toolbar-regular header-appBar-13 Toolbar-gutters">
@@ -30,12 +38,12 @@ function Header() {
             <img className="header-logo-11" src={logo} />
             <div className="header-vertical-9"></div>
             <Link to="/">
-              <h5 className="Typography-root header-logo-text">OpenJug</h5>
+              <h5 className="Typography-root header-logo-text">OpenJUG</h5>
             </Link>
             <div className="header-empty-6"></div>
             <div className="header-space-8"></div>
             <button className="ButtonBase-root Button-root Button-text header-navButtons-3">
-            <Link to="/discover">Discover</Link>
+              <Link to="/discover">Discover</Link>
             </button>
             <button className="ButtonBase-root Button-root Button-text header-navButtons-3">
               <Link to="/minter">Minter</Link>
@@ -50,19 +58,13 @@ function Header() {
         <Route exact path="/">
           <img className="bottom-space" src={homeImage} />
         </Route>
-        <Route path="/discover">
-          <h1>Discover</h1>
-          {/* <Item id={NFTID}/> */}
-        </Route>
+        <Route path="/discover">{listingGallery}</Route>
         <Route path="/minter">
           <Minter />
         </Route>
-        <Route path="/collection">
-            {userOwnedGallary}
-        </Route>
+        <Route path="/collection">{userOwnedGallery}</Route>
       </Switch>
     </BrowserRouter>
-    
   );
 }
 
